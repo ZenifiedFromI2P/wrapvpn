@@ -26,8 +26,9 @@ class CryptoContext(object):
         pt = None
         try:
             pt = self.box.decrypt(base64.b64decode(ct))
-        except Exception:
+        except Exception as e:
+            print(e)
             return b'', False
         else:
-            return pt, False
+            return pt, True
         pass

@@ -19,7 +19,8 @@ def ClientToServer(client, server):
     Receive plaintext, make ciphertext
     """
     while True:
-        buf = client.recv(256)
+        buf = client.recv(2)
+        print("At plaintext counter, I got {}".format(buf))
         if not buf: break
         cbuf = state['ctx'].encrypt(buf)
         server.send(cbuf)
@@ -30,11 +31,13 @@ def ServerToClient(client, server):
     Receive ciphertext, make plaintext
     """
     while True:
-        buf = server.recv(256)
+        buf = server.recv(56) # 2-byte buffer, 24-byte nonce, 16-byte Poly1305 MAC
+        print("At ciphertext counter, I got {}".format(buf))
         if not buf: break
         pbuf, valid = state['ctx'].decrypt(buf)
-        if not valid:
+        if valid is False:
             continue
+        print("Validity confirmed, original buffer: {0}, plaintext buffer: {1}".format(buf, pbuf))
         client.send(pbuf)
     pass
 

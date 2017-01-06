@@ -74,8 +74,7 @@ def setup():
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     c.connect((host, int(port)))
-
-
+    
     conn, addr = s.accept()
     with conn:
         handshake(c)

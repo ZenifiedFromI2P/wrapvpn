@@ -94,3 +94,4 @@ ENV/
 # Nuitka stuff
 *.build
 *.dist
+*.exe

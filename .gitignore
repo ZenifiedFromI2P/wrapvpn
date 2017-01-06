@@ -90,3 +90,7 @@ ENV/
 
 # Custom
 *.b64
+
+# Nuitka stuff
+*.build
+*.dist

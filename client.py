@@ -57,13 +57,18 @@ def handshake(conn):
     pass
 
 def setup():
-    c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host, port = conf.target.split(':')
-    c.connect((host, int(port)))
+    # Listener code
+
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((conf.host, conf.port))
     s.listen(1)
+
+    # Upstream forwarder code
+    c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host, port = conf.target.split(':')
+    c.connect((host, int(port)))
+
     conn, addr = s.accept()
     with conn:
         handshake(c)

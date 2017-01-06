@@ -58,16 +58,23 @@ def handshake(conn):
 
 def setup():
     # Listener code
-
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((conf.host, conf.port))
     s.listen(1)
 
     # Upstream forwarder code
-    c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     host, port = conf.target.split(':')
+    if conf.useTor:
+        import socks
+        c = socks.socksocket()
+        c.set_proxy(socks.SOCKS5, conf.torhost, conf.torport)
+    else:
+        c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     c.connect((host, int(port)))
+
 
     conn, addr = s.accept()
     with conn:

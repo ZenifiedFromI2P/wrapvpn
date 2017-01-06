@@ -9,8 +9,6 @@ class CryptoContext(object):
     """
     def __init__(self, pubkey, mypriv):
         super(CryptoContext, self).__init__()
-        print(pubkey)
-        print(len(pubkey))
         self.tcvpub = PublicKey(pubkey, encoder=b64)
         self.cvpriv = PrivateKey(mypriv, encoder=b64)
         self.cvpub = self.cvpriv.public_key

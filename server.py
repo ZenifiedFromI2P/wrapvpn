@@ -15,7 +15,7 @@ def PTtoCT(pt, ct, state):
     Motto: Get plaintext, make it ciphertext since 1993
     """
     while True:
-        buf = pt.recv(2)
+        buf = pt.recv(1024)
         print("At plaintext counter, I got {}".format(buf))
         if not buf: break
         cbuf = state['ctx'].encrypt(buf)
@@ -27,7 +27,7 @@ def CTtoPT(pt, ct, state):
     Motto: Get ciphertext, make it plaintext additionally authenticating it, since 1993
     """
     while True:
-        buf = ct.recv(56)
+        buf = ct.recv(1368) # 1024 buffer + 50 bytes overhead (Poly1305 MAC + 24-byte nonce) + Base64 overhead
         print("At ciphertext counter, I got {}".format(buf))
         if not buf: break
         pbuf, valid = state['ctx'].decrypt(buf)

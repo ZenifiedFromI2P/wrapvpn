@@ -19,7 +19,7 @@ def ClientToServer(client, server):
     Receive plaintext, make ciphertext
     """
     while True:
-        buf = client.recv(2)
+        buf = client.recv(1024)
         print("At plaintext counter, I got {}".format(buf))
         if not buf: break
         cbuf = state['ctx'].encrypt(buf)
@@ -31,7 +31,7 @@ def ServerToClient(client, server):
     Receive ciphertext, make plaintext
     """
     while True:
-        buf = server.recv(56) # 2-byte buffer, 24-byte nonce, 16-byte Poly1305 MAC
+        buf = server.recv(1368) # 1024 buffer + 50 bytes overhead (Poly1305 MAC + 24-byte nonce) + Base64 overhead
         print("At ciphertext counter, I got {}".format(buf))
         if not buf: break
         pbuf, valid = state['ctx'].decrypt(buf)
@@ -74,7 +74,7 @@ def setup():
         c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     c.connect((host, int(port)))
-    
+
     conn, addr = s.accept()
     with conn:
         handshake(c)

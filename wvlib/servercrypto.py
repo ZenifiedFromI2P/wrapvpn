@@ -1,7 +1,7 @@
-import nacl.utils
-import base64
 from nacl.encoding import Base64Encoder as b64
 from nacl.public import PrivateKey, PublicKey, Box
+import nacl.utils
+
 
 class CryptoContext(object):
     """
@@ -9,7 +9,7 @@ class CryptoContext(object):
     """
     def __init__(self, pubkey, mypriv):
         super(CryptoContext, self).__init__()
-        self.tcvpub = PublicKey(pubkey, encoder=b64)
+        self.tcvpub = PublicKey(pubkey) # target's CvPub is unencrypted
         self.cvpriv = PrivateKey(mypriv, encoder=b64)
         self.cvpub = self.cvpriv.public_key
 
@@ -20,12 +20,12 @@ class CryptoContext(object):
 
     def encrypt(self, pt):
         nonce = nacl.utils.random(24)
-        return base64.b64encode(self.box.encrypt(pt, nonce))
+        return self.box.encrypt(pt, nonce)
 
     def decrypt(self, ct):
         pt = None
         try:
-            pt = self.box.decrypt(base64.b64decode(ct))
+            pt = self.box.decrypt(ct)
         except Exception as e:
             print(e)
             return b'', False

@@ -1,7 +1,12 @@
 import socket
-import wvlib.servercrypto as crypt
-import multiprocessing as mp
+
 import conf
+import multiprocessing as mp
+import wvlib.servercrypto as crypt
+
+BUFSIZE = 1024
+OVERHEAD = 50 # 24-byte nonce, 16-byte Poly1305 MAC
+
 
 def read(fn):
     fp = open(fn, 'r')
@@ -15,11 +20,11 @@ def PTtoCT(pt, ct, state):
     Motto: Get plaintext, make it ciphertext since 1993
     """
     while True:
-        buf = pt.recv(1024)
+        buf = pt.recv(BUFSIZE)
         print("At plaintext counter, I got {}".format(buf))
         if not buf: break
         cbuf = state['ctx'].encrypt(buf)
-        ct.send(cbuf)
+        ct.send(cbuf) # Implicitly BUFSIZE+OVERHEAD bytes are sent
     pass
 
 def CTtoPT(pt, ct, state):
@@ -27,7 +32,7 @@ def CTtoPT(pt, ct, state):
     Motto: Get ciphertext, make it plaintext additionally authenticating it, since 1993
     """
     while True:
-        buf = ct.recv(1368) # 1024 buffer + 50 bytes overhead (Poly1305 MAC + 24-byte nonce) + Base64 overhead
+        buf = ct.recv(BUFSIZE+OVERHEAD) # 1024 buffer + 50 bytes overhead (Poly1305 MAC + 24-byte nonce)
         print("At ciphertext counter, I got {}".format(buf))
         if not buf: break
         pbuf, valid = state['ctx'].decrypt(buf)
@@ -37,7 +42,7 @@ def CTtoPT(pt, ct, state):
     pass
 
 def handshake(conn, state):
-    buf = conn.recv(44) # Base64-encoded
+    buf = conn.recv(32) # Base64-encoded
     s = state.copy()
     try:
         s['ctx'] = ctx = crypt.CryptoContext(buf, read("private.b64"))

@@ -1,6 +1,8 @@
 import argparse
+
 from nacl.encoding import Base64Encoder as b64
 from nacl.public import PrivateKey
+
 
 def write(filename, buf):
     fp = open(filename, 'w')

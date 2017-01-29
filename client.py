@@ -1,8 +1,12 @@
-import socket
-import wvlib.crypto as crypt
-import multiprocessing as mp
 import json
+import socket
+
 import conf
+import multiprocessing as mp
+import wvlib.crypto as crypt
+
+BUFSIZE = 1024
+OVERHEAD = 50 # 24-byte nonce, 16-byte Poly1305 MAC
 
 global state
 state = dict()
@@ -19,7 +23,7 @@ def ClientToServer(client, server):
     Receive plaintext, make ciphertext
     """
     while True:
-        buf = client.recv(1024)
+        buf = client.recv(BUFSIZE) # Client gets non-overhead (unencrypted buf)
         print("At plaintext counter, I got {}".format(buf))
         if not buf: break
         cbuf = state['ctx'].encrypt(buf)
@@ -31,7 +35,7 @@ def ServerToClient(client, server):
     Receive ciphertext, make plaintext
     """
     while True:
-        buf = server.recv(1368) # 1024 buffer + 50 bytes overhead (Poly1305 MAC + 24-byte nonce) + Base64 overhead
+        buf = server.recv(BUFSIZE+OVERHEAD)
         print("At ciphertext counter, I got {}".format(buf))
         if not buf: break
         pbuf, valid = state['ctx'].decrypt(buf)

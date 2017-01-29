@@ -1,7 +1,9 @@
-import nacl.utils
 import base64
+
 from nacl.encoding import Base64Encoder as b64
 from nacl.public import PrivateKey, PublicKey, Box
+import nacl.utils
+
 
 class CryptoContext(object):
     """
@@ -17,7 +19,7 @@ class CryptoContext(object):
         pass
 
     def createproposal(self):
-        return self.cvpub.encode(encoder=b64)
+        return self.cvpub.encode()
 
     def precompute(self):
         self.box = Box(self.cvpriv, self.tcvpub)
@@ -25,12 +27,12 @@ class CryptoContext(object):
 
     def encrypt(self, pt):
         nonce = nacl.utils.random(24)
-        return base64.b64encode(self.box.encrypt(pt, nonce))
+        return self.box.encrypt(pt, nonce)
 
     def decrypt(self, ct):
         pt = None
         try:
-            pt = self.box.decrypt(base64.b64decode(ct))
+            pt = self.box.decrypt(ct)
         except Exception as e:
             print(e)
             return b'', False

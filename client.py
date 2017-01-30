@@ -6,10 +6,11 @@ import multiprocessing as mp
 import wvlib.crypto as crypt
 
 BUFSIZE = 1024
-OVERHEAD = 50 # 24-byte nonce, 16-byte Poly1305 MAC
+OVERHEAD = 50  # 24-byte nonce, 16-byte Poly1305 MAC
 
 global state
 state = dict()
+
 
 def read(fn):
     fp = open(fn, 'r')
@@ -18,32 +19,41 @@ def read(fn):
     return buf
     pass
 
+
 def ClientToServer(client, server):
     """
     Receive plaintext, make ciphertext
     """
     while True:
-        buf = client.recv(BUFSIZE) # Client gets non-overhead (unencrypted buf)
+        # Client gets non-overhead (unencrypted buf)
+        buf = client.recv(BUFSIZE)
         print("At plaintext counter, I got {}".format(buf))
-        if not buf: break
+        if not buf:
+            break
         cbuf = state['ctx'].encrypt(buf)
         server.send(cbuf)
     pass
+
 
 def ServerToClient(client, server):
     """
     Receive ciphertext, make plaintext
     """
     while True:
-        buf = server.recv(BUFSIZE+OVERHEAD)
+        buf = server.recv(BUFSIZE + OVERHEAD)
         print("At ciphertext counter, I got {}".format(buf))
-        if not buf: break
+        if not buf:
+            break
         pbuf, valid = state['ctx'].decrypt(buf)
         if valid is False:
             continue
-        print("Validity confirmed, original buffer: {0}, plaintext buffer: {1}".format(buf, pbuf))
+        print(
+            "Validity confirmed, original buffer: {0}, plaintext buffer: {1}".format(
+                buf,
+                pbuf))
         client.send(pbuf)
     pass
+
 
 def handshake(conn):
     state['ctx'] = ctx = crypt.CryptoContext(read(conf.pubkey))
@@ -59,6 +69,7 @@ def handshake(conn):
     else:
         raise Exception("Handshaker failed")
     pass
+
 
 def setup():
     # Listener code

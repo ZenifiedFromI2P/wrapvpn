@@ -7,9 +7,10 @@ class CryptoContext(object):
     """
     Context used for performing cryptography on a stream
     """
+
     def __init__(self, pubkey, mypriv):
         super(CryptoContext, self).__init__()
-        self.tcvpub = PublicKey(pubkey) # target's CvPub is unencrypted
+        self.tcvpub = PublicKey(pubkey)  # target's CvPub is unencrypted
         self.cvpriv = PrivateKey(mypriv, encoder=b64)
         self.cvpub = self.cvpriv.public_key
 

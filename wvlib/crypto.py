@@ -9,6 +9,7 @@ class CryptoContext(object):
     """
     Context used for performing cryptography on a stream
     """
+
     def __init__(self, pubkey):
         super(CryptoContext, self).__init__()
         self.tcvpub = PublicKey(pubkey, encoder=b64)
